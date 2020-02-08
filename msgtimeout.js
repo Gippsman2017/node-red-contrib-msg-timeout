@@ -8,7 +8,7 @@ module.exports = function(RED) {
     var timeout = null;
     var flowContext   = node.context().flow;
     var globalContext = node.context().global;
-
+    var msgCount = 0;
     node.units = n.units || 's';
     node.duration = n.duration || 5;
     node.onmsgtimeoutval  = n.onmsgtimeoutval || '0';
@@ -39,16 +39,19 @@ module.exports = function(RED) {
       node.onmsgtimeoutval = String(node.onmsgtimeoutval);
 
     node.on('input', function(msg) {
+      msgCount = msgCount+1;
       node.send([msg,null]);
       clearTimeout(timeout);
       node.status({fill:'green', shape:'dot'});
       timeout = setTimeout(function() {
         var msg2 = RED.util.cloneMessage(msg);
         msg2.payload = node.onmsgtimeoutval;
+        msg2.msgCount = msgCount;
         if (node.onmsgtimeouttype === 'flow')   { msg2.payload = flowContext.get(node.onmsgtimeoutval);   }
    else if (node.onmsgtimeouttype === 'global') { msg2.payload = globalContext.get(node.onmsgtimeoutval); }
         node.send([null,msg2]);
         timeout = null;
+        msgCount = 0;
         node.status({fill:'red', shape:'ring', text:'msg timeout'});
       }, node.duration);
     });

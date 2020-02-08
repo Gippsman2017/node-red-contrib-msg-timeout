@@ -1,0 +1,3 @@
+
+v 0.1.1 Added msg.msgCount to the timeout output so that a count of messages passed though to the 1st output is now tallyed up.
+v 0.1.0 Initial Version
